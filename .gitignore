@@ -1,0 +1,21 @@
+# Environment & local secrets
+.env
+*.env.local
+
+# Python virtualenvs & bytecode
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Runtime binaries & persistent state
+runtime/
+data/*.json
+models/*.tflite
+models/*.txt
+models/*.jpg
+models/*.bmp

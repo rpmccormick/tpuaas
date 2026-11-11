@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tpuaas"
+version = "1.2.0"
+description = "Coral EdgeTPU-as-a-Service — Shared 8 MB SRAM-Locality Scheduler, Dual-Mode Queued/Stream Inference, and Robotics/Ambilight Server"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+  { name = "Ryan McCormick", email = "rpmccormick@users.noreply.github.com" }
+]
+requires-python = ">=3.9"
+keywords = ["coral", "edgetpu", "tpu", "fastapi", "yolov9", "movenet", "robotics", "ambilight", "homelab"]
+dependencies = [
+  "fastapi>=0.100.0",
+  "uvicorn[standard]>=0.22.0",
+  "python-multipart>=0.0.6",
+  "pillow>=9.5.0",
+  "numpy<2.0",
+  "httpx>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/rpmccormick/tpuaas"
+Repository = "https://github.com/rpmccormick/tpuaas"
+Issues = "https://github.com/rpmccormick/tpuaas/issues"

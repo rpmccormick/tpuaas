@@ -1,0 +1,16 @@
+services:
+  tpuaas:
+    build: .
+    container_name: tpuaas
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    env_file:
+      - .env
+    devices:
+      # PCIe / M.2 Coral Edge TPU
+      - /dev/apex_0:/dev/apex_0
+      # USB Coral Edge TPU (optional)
+      - /dev/bus/usb:/dev/bus/usb
+    volumes:
+      - ./data:/opt/tpuaas/data

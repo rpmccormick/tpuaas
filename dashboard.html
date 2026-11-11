@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TPUaaS — Coral EdgeTPU-as-a-Service Control Center</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: #131b2e;
+      --border: #23304d;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      line-height: 1.45;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .title-group h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      font-weight: 600;
+    }
+    .subtitle { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .kpi-label { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+    .kpi-val { font-size: 1.65rem; font-weight: 700; margin-top: 6px; color: var(--text); }
+    .kpi-sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+    h2 { font-size: 1.05rem; margin-bottom: 12px; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    button, select, input[type="text"] {
+      background: #1e293b;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 13px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    button:hover { border-color: var(--accent); background: #26354d; }
+    button.primary { background: #0284c7; border-color: #38bdf8; font-weight: 600; }
+    button.primary:hover { background: #0369a1; }
+    .preview-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (max-width: 700px) { .preview-box { grid-template-columns: 1fr; } }
+    .img-frame {
+      background: #070a12;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .img-frame img { max-width: 100%; max-height: 320px; object-fit: contain; }
+    pre {
+      background: #070a12;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.78rem;
+      color: #a5f3fc;
+      overflow: auto;
+      max-height: 320px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.73rem;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      margin-right: 4px;
+    }
+    .pill.hit { background: rgba(16, 185, 129, 0.18); color: var(--green); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title-group">
+      <h1>
+        <span>⚡ TPUaaS — Coral EdgeTPU Service</span>
+        <span id="hw-badge" class="badge">ALIVE • /dev/apex_0</span>
+      </h1>
+      <div class="subtitle">
+        Shared Hardware AI Acceleration (<strong id="host-label">Coral EdgeTPU</strong>) for <strong>AmbiLED</strong>, <strong>Loona</strong>, <strong>Drones</strong> &amp; <strong>Camera Detections</strong>
+      </div>
+    </div>
+    <div class="btn-row" style="margin:0;">
+      <a href="/AGENT_GUIDE.md" target="_blank"><button>Agent Guide ↗</button></a>
+      <a href="/AGENT_BOARD.md" target="_blank"><button>Agent Board ↗</button></a>
+      <a href="/docs" target="_blank"><button>OpenAPI Docs ↗</button></a>
+      <button onclick="refreshStatus()">Refresh Telemetry</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="card">
+      <div class="kpi-label">EdgeTPU Die Temp</div>
+      <div class="kpi-val" id="kpi-temp">-- °C</div>
+      <div class="kpi-sub" id="kpi-trip">Throttle Trip: 84.8 °C</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Active SRAM Model</div>
+      <div class="kpi-val" id="kpi-model" style="font-size:1.3rem; color:var(--accent);">--</div>
+      <div class="kpi-sub">8 MB On-Chip Cache Resident</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">SRAM Cache Hit Rate</div>
+      <div class="kpi-val" id="kpi-hitrate" style="color:var(--green);">-- %</div>
+      <div class="kpi-sub" id="kpi-total">0 Total Hardware Inferences</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Visual Memory Bank</div>
+      <div class="kpi-val" id="kpi-memory">0</div>
+      <div class="kpi-sub">1024-D Cosine Re-ID Entities</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="card">
+      <h2>
+        <span>🧪 Live Project &amp; Model Playground</span>
+        <span id="last-latency" style="font-size:0.82rem; color:var(--green);"></span>
+      </h2>
+      <div class="btn-row">
+        <span style="font-size:0.8rem; color:var(--muted); align-self:center;">Sample Image:</span>
+        <select id="sample-select">
+          <option value="pose">Person Pose (squat.bmp)</option>
+          <option value="face">Human Face (grace_hopper.bmp)</option>
+          <option value="parrot">Scarlet Macaw (parrot.jpg)</option>
+        </select>
+        <input type="file" id="file-upload" accept="image/*" style="max-width:210px; font-size:0.78rem;" />
+      </div>
+      <div class="btn-row">
+        <button class="primary" onclick="runPipeline('/v1/projects/ambiled', 'ambiled')">📺 Test AmbiLED Pipeline</button>
+        <button class="primary" onclick="runPipeline('/v1/projects/loona', 'loona')">🐾 Test Loona Pipeline</button>
+        <button class="primary" onclick="runPipeline('/v1/projects/drones', 'drones')">🚁 Test Drones Servo</button>
+        <button class="primary" onclick="runPipeline('/v1/projects/cameras', 'cameras')">📷 Test Camera NVR</button>
+      </div>
+      <div class="btn-row">
+        <button onclick="runModel('yolov9s', true)">YOLOv9s (320x320)</button>
+        <button onclick="runModel('mobiledet_coco', false)">MobileDet COCO (90-cls)</button>
+        <button onclick="runModel('ssd_face', false)">SSD Face</button>
+        <button onclick="runEndpoint('/v1/pose')">MoveNet 17-KP Pose</button>
+        <button onclick="runEndpoint('/v1/segment')">DeepLabv3 Segment</button>
+        <button onclick="runEndpoint('/v1/classify')">ImageNet Classify</button>
+      </div>
+
+      <div class="preview-box">
+        <div class="img-frame">
+          <img id="preview-img" src="/v1/samples/pose" alt="Preview" />
+        </div>
+        <pre id="json-output">// Click any project pipeline or EdgeTPU model above to run hardware inference on /dev/apex_0...</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Project Client Telemetry</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Project Client</th>
+            <th>Requests</th>
+            <th>Last Model</th>
+            <th>Last Latency</th>
+            <th>Last Active</th>
+          </tr>
+        </thead>
+        <tbody id="clients-tbody"></tbody>
+      </table>
+
+      <h2 style="margin-top:20px;">⚡ Recent EdgeTPU Hardware Events</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Client</th>
+            <th>Model</th>
+            <th>TPU Time</th>
+            <th>SRAM</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="events-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🧠 Loaded EdgeTPU Hardware Models (9 Pre-Allocated in Process)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Model ID</th>
+          <th>Task</th>
+          <th>Input Tensor</th>
+          <th>Min TPU (ms)</th>
+          <th>Avg TPU (ms)</th>
+          <th>Calls</th>
+          <th>Recommended Projects</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody id="models-tbody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    document.getElementById('host-label').textContent = window.location.host || 'Coral EdgeTPU';
+    async function refreshStatus() {
+      try {
+        const res = await fetch('/v1/status');
+        const data = await res.json();
+        document.getElementById('kpi-temp').textContent = (data.hardware.temp_c ?? '--') + ' °C';
+        document.getElementById('kpi-model').textContent = data.scheduler.active_sram_model || '--';
+        document.getElementById('kpi-hitrate').textContent = data.scheduler.sram_cache_hit_rate_pct + ' %';
+        document.getElementById('kpi-total').textContent = data.scheduler.total_inferences + ' Total Hardware Inferences';
+        document.getElementById('kpi-memory').textContent = data.scheduler.memory_bank_items;
+
+        const cBody = document.getElementById('clients-tbody');
+        cBody.innerHTML = Object.entries(data.clients).map(([name, c]) => `
+          <tr>
+            <td><strong>${name}</strong></td>
+            <td>${c.requests}</td>
+            <td><span class="pill">${c.last_model || '-'}</span></td>
+            <td>${c.last_ms ? c.last_ms + ' ms' : '-'}</td>
+            <td style="color:var(--muted)">${c.last_seen || '-'}</td>
+          </tr>
+        `).join('');
+
+        const eBody = document.getElementById('events-tbody');
+        eBody.innerHTML = data.recent_events.slice(0, 8).map(e => `
+          <tr>
+            <td style="color:var(--muted)">${e.ts}</td>
+            <td>${e.client}</td>
+            <td><span class="pill">${e.model}</span></td>
+            <td><strong>${e.tpu_ms} ms</strong></td>
+            <td><span class="pill ${e.cache_hit ? 'hit' : ''}">${e.cache_hit ? 'HIT' : 'LOAD'}</span></td>
+            <td>${e.summary}</td>
+          </tr>
+        `).join('');
+
+        const mBody = document.getElementById('models-tbody');
+        mBody.innerHTML = data.models.map(m => `
+          <tr>
+            <td><strong>${m.name}</strong></td>
+            <td><span class="pill">${m.task}</span></td>
+            <td><code>${m.input_shape.join('×')} (${m.input_dtype})</code></td>
+            <td style="color:var(--green); font-weight:600;">${m.min_tpu_ms} ms</td>
+            <td>${m.avg_tpu_ms} ms</td>
+            <td>${m.inferences}</td>
+            <td>${m.recommended_for.map(r => `<span class="pill">${r}</span>`).join('')}</td>
+            <td style="color:var(--muted)">${m.description}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function buildFormOrQuery(baseUrl) {
+      const fileInput = document.getElementById('file-upload');
+      const sample = document.getElementById('sample-select').value;
+      if (fileInput.files && fileInput.files.length > 0) {
+        const fd = new FormData();
+        fd.append('file', fileInput.files[0]);
+        return { url: baseUrl, options: { method: 'POST', body: fd } };
+      }
+      const sep = baseUrl.includes('?') ? '&' : '?';
+      return { url: `${baseUrl}${sep}sample=${sample}`, options: { method: 'POST' } };
+    }
+
+    async function updateAnnotatedPreview(model = 'mobiledet_coco', includePose = true) {
+      const req = await buildFormOrQuery(`/v1/annotate?model=${model}&include_pose=${includePose}&threshold=0.25`);
+      const res = await fetch(req.url, req.options);
+      if (res.ok) {
+        const blob = await res.blob();
+        document.getElementById('preview-img').src = URL.createObjectURL(blob);
+      }
+    }
+
+    async function runPipeline(endpoint, project) {
+      const req = await buildFormOrQuery(endpoint);
+      const res = await fetch(req.url, req.options);
+      const data = await res.json();
+      document.getElementById('json-output').textContent = JSON.stringify(data, null, 2);
+      document.getElementById('last-latency').textContent = `⚡ TPU: ${data.tpu_ms} ms | Total: ${data.total_ms} ms`;
+      await updateAnnotatedPreview(project === 'cameras' || project === 'drones' ? 'yolov9s' : 'mobiledet_coco', project === 'loona');
+      await refreshStatus();
+    }
+
+    async function runModel(model, includePose) {
+      const req = await buildFormOrQuery(`/v1/detect?model=${model}&client=playground`);
+      const res = await fetch(req.url, req.options);
+      const data = await res.json();
+      document.getElementById('json-output').textContent = JSON.stringify(data, null, 2);
+      document.getElementById('last-latency').textContent = `⚡ TPU: ${data.tpu_ms} ms | Total: ${data.total_ms} ms`;
+      await updateAnnotatedPreview(model, includePose);
+      await refreshStatus();
+    }
+
+    async function runEndpoint(endpoint) {
+      const req = await buildFormOrQuery(`${endpoint}?client=playground`);
+      const res = await fetch(req.url, req.options);
+      const data = await res.json();
+      document.getElementById('json-output').textContent = JSON.stringify(data, null, 2);
+      document.getElementById('last-latency').textContent = `⚡ TPU: ${data.tpu_ms} ms | Total: ${data.total_ms} ms`;
+      if (endpoint === '/v1/pose') {
+        await updateAnnotatedPreview('yolov9s', true);
+      }
+      await refreshStatus();
+    }
+
+    document.getElementById('sample-select').addEventListener('change', (e) => {
+      document.getElementById('file-upload').value = '';
+      document.getElementById('preview-img').src = `/v1/samples/${e.target.value}`;
+    });
+
+    refreshStatus();
+    setInterval(refreshStatus, 4000);
+  </script>
+</body>
+</html>
